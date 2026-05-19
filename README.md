@@ -22,7 +22,7 @@ Dự án xây dựng mô hình học máy dự đoán **ngày mai có mưa hay k
 ➡️ **Random Forest** đạt ROC-AUC cao nhất (0.8465) — mô hình tốt nhất tổng thể.
 
 ---
-
+```text
 ## 🗂️ Cấu trúc dự án
 rain-prediction-danang/
 │
@@ -51,7 +51,7 @@ rain-prediction-danang/
 └── README.md
 
 ---
-
+```
 ## 🔧 Cài đặt và chạy
 
 **1. Clone repo**
