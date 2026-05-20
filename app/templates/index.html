@@ -1,0 +1,265 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="row g-4">
+
+  <!-- CỘT TRÁI: Form nhập liệu -->
+  <div class="col-lg-5">
+    <div class="card p-4 mb-4">
+      <h5 class="fw-bold mb-1"><i class="fas fa-sliders-h me-2 text-primary"></i>Thông số hôm nay</h5>
+      <p class="text-muted small mb-3">{{ today }}</p>
+
+      <!-- Chọn ngày -->
+      <div class="mb-3">
+          <label class="form-label fw-semibold">Dự đoán cho ngày nào?</label>
+          <div class="d-flex gap-3">
+              <div class="form-check">
+                  <input class="form-check-input" type="radio" name="forecastDay"
+                        id="forToday" value="today" onchange="onForecastChange()">
+                  <label class="form-check-label" for="forToday">
+                      ☀️ Hôm nay <span class="text-muted small">({{ today }})</span>
+                  </label>
+              </div>
+              <div class="form-check">
+                  <input class="form-check-input" type="radio" name="forecastDay"
+                        id="forTomorrow" value="tomorrow" onchange="onForecastChange()" checked>
+                  <label class="form-check-label" for="forTomorrow">
+                      🌧️ Ngày mai <span class="text-muted small">({{ tomorrow }})</span>
+                  </label>
+              </div>
+          </div>
+          <p class="text-muted small mt-1 mb-0" id="forecastHint">
+              <i class="fas fa-info-circle me-1"></i>
+              Nhập thông số thời tiết <strong>hôm nay</strong> để dự đoán ngày mai
+          </p>
+      </div>
+      <!-- Chọn mô hình -->
+      <div class="mb-3">
+        <label class="form-label fw-semibold">Mô hình dự đoán</label>
+        <select class="form-select" id="modelSelect">
+          <option>Random Forest</option>
+          <option>Voting Classifier</option>
+          <option>Decision Tree</option>
+          <option>Logistic Regression</option>
+        </select>
+      </div>
+
+      <hr>
+
+      <!-- Form nhập liệu -->
+      <div class="row g-2">
+        <div class="col-6">
+          <label class="form-label small">Nhiệt độ max (°C)</label>
+          <input type="number" class="form-control" id="temp_max" step="0.1" value="30">
+        </div>
+        <div class="col-6">
+          <label class="form-label small">Nhiệt độ min (°C)</label>
+          <input type="number" class="form-control" id="temp_min" step="0.1" value="24">
+        </div>
+        <div class="col-6">
+          <label class="form-label small">Nhiệt độ TB (°C)</label>
+          <input type="number" class="form-control" id="temp_mean" step="0.1" value="27">
+        </div>
+        <div class="col-6">
+          <label class="form-label small">Lượng mưa (mm)</label>
+          <input type="number" class="form-control" id="precipitation" step="0.1" value="0">
+        </div>
+        <div class="col-6">
+          <label class="form-label small">Độ ẩm max (%)</label>
+          <input type="number" class="form-control" id="humidity_max" step="0.1" value="90">
+        </div>
+        <div class="col-6">
+          <label class="form-label small">Độ ẩm min (%)</label>
+          <input type="number" class="form-control" id="humidity_min" step="0.1" value="65">
+        </div>
+        <div class="col-6">
+          <label class="form-label small">Tốc độ gió (km/h)</label>
+          <input type="number" class="form-control" id="wind_speed_max" step="0.1" value="18">
+        </div>
+        <div class="col-6">
+          <label class="form-label small">Áp suất (hPa)</label>
+          <input type="number" class="form-control" id="pressure_msl" step="0.1" value="1010">
+        </div>
+        <div class="col-6">
+          <label class="form-label small">Độ mây (%)</label>
+          <input type="number" class="form-control" id="cloud_cover_mean" step="0.1" value="70">
+        </div>
+        <div class="col-6">
+          <label class="form-label small">Tháng</label>
+          <input type="number" class="form-control" id="month" min="1" max="12" value="5">
+        </div>
+        <div class="col-6">
+          <label class="form-label small">Mưa hôm qua (mm)</label>
+          <input type="number" class="form-control" id="precip_lag1" step="0.1" value="0">
+        </div>
+        <div class="col-6">
+          <label class="form-label small">Mưa 2 ngày trước (mm)</label>
+          <input type="number" class="form-control" id="precip_lag2" step="0.1" value="0">
+        </div>
+      </div>
+
+      <div class="d-grid gap-2 mt-3">
+        <button class="btn btn-success" onclick="autoFetch()">
+          <i class="fas fa-sync-alt me-2"></i>Tự động lấy dữ liệu hôm nay
+        </button>
+        <button class="btn btn-primary" onclick="predictRain()">
+          <i class="fas fa-cloud-rain me-2"></i>Dự đoán
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CỘT PHẢI: Kết quả -->
+  <div class="col-lg-7">
+
+    <!-- Kết quả dự đoán -->
+    <div class="card p-4 mb-4" id="resultCard" style="display:none!important">
+      <!-- ngày dự đoán -->
+      <p class="mb-1 opacity-75" id="resultDate"></p>
+      <h3 class="fw-bold" id="resultLabel"></h3>
+      <h5 class="fw-bold mb-3"><i class="fas fa-chart-pie me-2 text-primary"></i>Kết quả dự đoán</h5>
+      <div class="p-4 text-center mb-3" id="resultBox">
+        <div class="display-4 mb-2" id="resultIcon"></div>
+        <h3 class="fw-bold" id="resultLabel"></h3>
+        <p class="mb-1" id="resultModel"></p>
+        <p class="fw-semibold fs-5" id="resultProb"></p>
+        <div class="progress mt-2" style="height:12px">
+          <div class="progress-bar prob-bar" id="probBar" style="width:0%"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Biểu đồ so sánh 4 mô hình -->
+    <div class="card p-4">
+      <h5 class="fw-bold mb-3"><i class="fas fa-chart-bar me-2 text-primary"></i>So sánh xác suất có mưa – 4 mô hình</h5>
+      <canvas id="modelChart" height="180"></canvas>
+      <p class="text-muted small mt-2 mb-0">
+        <i class="fas fa-info-circle me-1"></i>Bấm "Dự đoán" để cập nhật biểu đồ
+      </p>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Khi thay đổi radio
+function onForecastChange() {
+    const isToday = document.getElementById('forToday').checked;
+    const hint    = document.getElementById('forecastHint');
+    hint.innerHTML = isToday
+        ? '<i class="fas fa-info-circle me-1"></i>Nhập thông số <strong>hôm qua</strong> để dự đoán hôm nay'
+        : '<i class="fas fa-info-circle me-1"></i>Nhập thông số <strong>hôm nay</strong> để dự đoán ngày mai';
+}
+
+// Khởi tạo biểu đồ
+const ctx = document.getElementById('modelChart').getContext('2d');
+const modelChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: ['Logistic Regression', 'Decision Tree', 'Random Forest', 'Voting Classifier'],
+        datasets: [{
+            label: 'Xác suất có mưa (%)',
+            data: [0, 0, 0, 0],
+            backgroundColor: ['#3498db','#2ecc71','#e74c3c','#9b59b6'],
+            borderRadius: 8,
+        }]
+    },
+    options: {
+        scales: { y: { min: 0, max: 100, ticks: { callback: v => v + '%' } } },
+        plugins: { legend: { display: false } }
+    }
+});
+
+function getFormData(modelName) {
+    return {
+        model_name:        modelName,
+        temp_max:          parseFloat(document.getElementById('temp_max').value),
+        temp_min:          parseFloat(document.getElementById('temp_min').value),
+        temp_mean:         parseFloat(document.getElementById('temp_mean').value),
+        precipitation:     parseFloat(document.getElementById('precipitation').value),
+        humidity_max:      parseFloat(document.getElementById('humidity_max').value),
+        humidity_min:      parseFloat(document.getElementById('humidity_min').value),
+        wind_speed_max:    parseFloat(document.getElementById('wind_speed_max').value),
+        pressure_msl:      parseFloat(document.getElementById('pressure_msl').value),
+        cloud_cover_mean:  parseFloat(document.getElementById('cloud_cover_mean').value),
+        month:             parseInt(document.getElementById('month').value),
+        precip_lag1:       parseFloat(document.getElementById('precip_lag1').value),
+        precip_lag2:       parseFloat(document.getElementById('precip_lag2').value),
+    };
+}
+
+async function callPredict(modelName) {
+    const res = await fetch('/predict', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(getFormData(modelName))
+    });
+    return await res.json();
+}
+
+async function predictRain() {
+    const selectedModel = document.getElementById('modelSelect').value;
+    const isToday       = document.getElementById('forToday').checked;
+
+    const main = await callPredict(selectedModel);
+
+    // Hiển thị ngày dự đoán
+    const targetDate  = isToday ? '{{ today }}' : '{{ tomorrow }}';
+    const card        = document.getElementById('resultCard');
+    const box         = document.getElementById('resultBox');
+    card.style.cssText = 'display:block!important';
+
+    document.getElementById('resultDate').textContent  = `Dự đoán cho: ${targetDate}`;
+    document.getElementById('resultIcon').textContent  = main.result === 1 ? '🌧️' : '☀️';
+    document.getElementById('resultLabel').textContent = main.label;
+    document.getElementById('resultModel').textContent = `Mô hình: ${main.model}`;
+    document.getElementById('resultProb').textContent  = `Xác suất có mưa: ${main.probability}%`;
+
+    const bar      = document.getElementById('probBar');
+    bar.style.width = main.probability + '%';
+    bar.className   = `progress-bar prob-bar ${main.result === 1 ? 'bg-primary' : 'bg-warning'}`;
+    box.className   = `p-4 text-center mb-3 ${main.result === 1 ? 'result-rain' : 'result-no-rain'}`;
+
+    // Cập nhật biểu đồ 4 mô hình
+    const modelNames = ['Logistic Regression', 'Decision Tree', 'Random Forest', 'Voting Classifier'];
+    const probs      = await Promise.all(modelNames.map(m => callPredict(m)));
+    modelChart.data.datasets[0].data = probs.map(p => p.probability);
+    modelChart.update();
+}
+
+async function autoFetch() {
+    const btn     = event.target;
+    const isToday = document.getElementById('forToday').checked;
+
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Đang lấy dữ liệu...';
+    btn.disabled  = true;
+
+    try {
+        const res  = await fetch(`/auto-fetch?for_today=${isToday}`);
+        const data = await res.json();
+
+        if (data.error) { alert('Lỗi: ' + data.error); return; }
+
+        document.getElementById('temp_max').value         = data.temp_max.toFixed(1);
+        document.getElementById('temp_min').value         = data.temp_min.toFixed(1);
+        document.getElementById('temp_mean').value        = data.temp_mean.toFixed(1);
+        document.getElementById('precipitation').value    = data.precipitation.toFixed(1);
+        document.getElementById('humidity_max').value     = data.humidity_max.toFixed(1);
+        document.getElementById('humidity_min').value     = data.humidity_min.toFixed(1);
+        document.getElementById('wind_speed_max').value   = data.wind_speed_max.toFixed(1);
+        document.getElementById('pressure_msl').value     = data.pressure_msl.toFixed(1);
+        document.getElementById('cloud_cover_mean').value = data.cloud_cover_mean.toFixed(1);
+        document.getElementById('month').value            = data.month;
+        document.getElementById('precip_lag1').value      = data.precip_lag1.toFixed(1);
+        document.getElementById('precip_lag2').value      = data.precip_lag2.toFixed(1);
+
+    } finally {
+        btn.innerHTML = '<i class="fas fa-sync-alt me-2"></i>Tự động lấy dữ liệu';
+        btn.disabled  = false;
+    }
+}
+</script>
+{% endblock %}

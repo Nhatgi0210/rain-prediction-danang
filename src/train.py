@@ -27,7 +27,9 @@ def train(X_train, X_test, X_train_scaled, X_test_scaled, y_train, y_test):
     ], voting='soft')
     voting.fit(X_train, y_train)
 
-    # Lưu model tốt nhất
+    # Lưu 4 model vào thư mục models/
+    joblib.dump(lr, "models/logistic_regression.pkl")
+    joblib.dump(dt, "models/decision_tree.pkl")
     joblib.dump(rf, "models/random_forest.pkl")
     joblib.dump(voting, "models/voting_classifier.pkl")
     print("Đã lưu mô hình vào thư mục models/")
