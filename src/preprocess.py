@@ -2,7 +2,6 @@ import pandas as pd
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 import joblib
-import os
 
 FEATURES = [
     'temp_max', 'temp_min', 'temp_mean',
@@ -42,7 +41,6 @@ def preprocess(input_path="data/danang_weather_raw.csv",
     X_train_scaled = scaler.fit_transform(X_train)
     X_test_scaled  = scaler.transform(X_test)
 
-    os.makedirs("models", exist_ok=True)
     joblib.dump(scaler, "models/scaler.pkl")
     print("Đã lưu scaler vào models/scaler.pkl")
 
