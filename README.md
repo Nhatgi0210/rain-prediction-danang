@@ -1,5 +1,6 @@
 # 🌧️ Dự Báo Mưa Tại Đà Nẵng Sử Dụng Machine Learning
 
+> Đồ án môn Học máy (1) — Đại học Công nghệ Thông tin và Truyền thông Việt–Hàn
 
 ---
 
@@ -21,28 +22,9 @@ Dự án xây dựng mô hình học máy dự đoán **ngày mai có mưa hay k
 ➡️ **Random Forest** đạt ROC-AUC cao nhất (0.8465) — mô hình tốt nhất tổng thể.
 
 ---
-## 🌐 Demo Web
-<img width="1274" height="695" alt="image" src="https://github.com/user-attachments/assets/ca5eadcc-21a3-4c6d-8702-bf1c613ab763" />
-
-## Tính năng:
-- 🔘 Chọn dự đoán hôm nay hoặc ngày mai 
-- ⚡ Tự động lấy dữ liệu thời tiết thực tế từ Open-Meteo
-- 🤖 Chọn mô hình dự đoán (4 mô hình)
-- 📊 Biểu đồ so sánh xác suất có mưa của cả 4 mô hình
-
 
 ## 🗂️ Cấu trúc dự án
-```text
 rain-prediction-danang/
-│
-├── app/                               # Flask web application
-│   ├── __init__.py
-│   ├── routes.py                      # Xử lý request
-│   ├── predictor.py                   # Load model và dự đoán
-│   ├── weather_api.py                 # Lấy dữ liệu thời tiết thực tế
-│   └── templates/
-│       ├── base.html                  # Layout chung
-│       └── index.html                 # Trang chính
 │
 ├── data/
 │   ├── danang_weather_raw.csv         # Dữ liệu thô từ Open-Meteo
@@ -52,14 +34,11 @@ rain-prediction-danang/
 │   ├── eda_charts.png                 # Biểu đồ phân tích dữ liệu
 │   ├── confusion_matrix.png           # Confusion Matrix 4 mô hình
 │   ├── roc_curve.png                  # Đường cong ROC
-│   ├── feature_importance.png         # Feature Importance
-│   └── web_demo.png                   # Ảnh chụp giao diện web
+│   └── feature_importance.png        # Feature Importance
 │
 ├── models/
-│   ├── logistic_regression.pkl        # Mô hình Logistic Regression
-│   ├── decision_tree.pkl              # Mô hình Decision Tree
-│   ├── random_forest.pkl              # Mô hình Random Forest
-│   ├── voting_classifier.pkl          # Mô hình Voting Classifier
+│   ├── random_forest.pkl              # Mô hình Random Forest đã train
+│   ├── voting_classifier.pkl          # Mô hình Voting Classifier đã train
 │   └── scaler.pkl                     # StandardScaler đã fit
 │
 ├── src/
@@ -68,12 +47,11 @@ rain-prediction-danang/
 │   └── train.py                       # Huấn luyện và đánh giá 4 mô hình
 │
 ├── notebooks/                         # Notebook thử nghiệm trên Colab
-├── app.py                             # Entry point Flask
 ├── requirements.txt                   # Danh sách thư viện
 └── README.md
 
 ---
-```
+
 ## 🔧 Cài đặt và chạy
 
 **1. Clone repo**
@@ -100,11 +78,6 @@ python src/preprocess.py
 **5. Huấn luyện và đánh giá**
 ```bash
 python src/train.py
-```
-**6. Chạy web demo**
-
-```bash
-python app.py
 ```
 
 ---
@@ -136,9 +109,8 @@ python app.py
 
 ## 📚 Kỹ thuật áp dụng
 
--  Hồi quy Logistic
--  Cây Quyết Định, Classification Metrics
--  Random Forest (Bagging), Voting Classifier (Ensemble)
+- **Chương 3:** Hồi quy Logistic
+- **Chương 4:** Cây Quyết Định, Classification Metrics
+- **Chương 5:** Random Forest (Bagging), Voting Classifier (Ensemble)
 
 ---
-## ĐINH PHÚC TUẤN NHẬT
